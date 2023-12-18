@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "home": "../scenes/home/index"
+  },
+  "renderer": "xr-frame",
+  "disableScroll": true
+}

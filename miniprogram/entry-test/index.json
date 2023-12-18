@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "entry-xr": "./component/index"
+  },
+  "disableScroll": true
+}

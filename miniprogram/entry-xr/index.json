@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "container": "../container/index"
+  },
+  "renderer": "xr-frame",
+  "disableScroll": true
+}

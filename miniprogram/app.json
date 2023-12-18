@@ -1,0 +1,18 @@
+{
+  "pages": [
+    "entry-test/index"
+  ],
+  "xr-entry": [
+    "entry-xr/index"
+  ],
+  "usingComponents": {},
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#f6f6f6",
+    "navigationBarTitleText": "",
+    "navigationBarTextStyle": "black"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}
