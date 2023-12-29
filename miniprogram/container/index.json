@@ -1,6 +1,9 @@
 {
   "usingComponents": {
-    "home": "../scenes/home/index"
+    "menu": "./menu-tmp/index",
+    "home": "../scenes/home/index",
+    "animation": "../scenes/animation/index",
+    "instance": "../scenes/instance/index"
   },
   "renderer": "xr-frame",
   "disableScroll": true

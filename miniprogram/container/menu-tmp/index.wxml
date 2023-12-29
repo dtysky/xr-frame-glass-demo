@@ -1,0 +1,18 @@
+<xr-element menu-tmp>
+  <xr-asset-material asset-id="ui-default" effect="simple" states="alphaMode:BLEND,cullOn:false" />
+
+  <xr-node id="ui-wrapper">
+    <xr-node position="{{wrapper.x}} {{wrapper.y}} 2" rotation="90 0 0">
+      <xr-mesh
+        wx:for="{{scenes}}" wx:for-item="scene"
+        id="scene-{{scene.name}}"
+        scale="{{perWidth}} 1 {{perHeight}}"
+        position="{{scene.x}} 0 {{scene.y}}"
+        geometry="plane" material="ui-default"
+        uniforms="baseColorFactor:{{scene.color}}"
+        cube-shape="autoFit:true"
+        states="renderQueue:2501"
+      />
+    </xr-node>
+  </xr-node>
+</xr-element>

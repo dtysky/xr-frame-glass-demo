@@ -1,12 +1,26 @@
 <xr-element>
-  <xr-node>
+  <xr-camera id="camera" clear-color="0.3 0.8 0.6 1" enable-xr>
+  </xr-camera>
+
+  <!-- <xr-node>
     <xr-mesh geometry="cube" scale="0.5 0.5 0.5" position="1 0 -4" />
     <xr-mesh geometry="sphere" scale="0.5 0.5 0.5" position="-1 0 -4" />
   </xr-node>
 
-  <xr-camera id="camera" clear-color="0.4 0.8 0.6 1" enable-xr>
-  </xr-camera>
+  <xr-controller>
+    <xr-mesh geometry="sphere" scale="0.2 0.2 0.2" uniforms="u_baseColorFactor:1 0 0 1"></xr-mesh>
+  </xr-controller>
+
+  <xr-controller>
+    <xr-mesh geometry="sphere" scale="0.2 0.2 0.2" uniforms="u_baseColorFactor:0 1 0 1"></xr-mesh>
+  </xr-controller>
 
   <xr-light type="ambient" color="1 1 1" intensity="1" />
-  <xr-light type="directional" rotation="40 70 0" color="1 1 1" intensity="3" />
+  <xr-light type="directional" rotation="40 70 0" color="1 1 1" intensity="3" /> -->
+
+  <menu />
+
+  <!-- <home /> -->
+  <animation />
+  <!-- <instance /> -->
 </xr-element>

@@ -1,10 +1,9 @@
 {
   "pages": [
-    "entry-test/index"
-  ],
-  "xr-entry": [
+    "entry-test/index",
     "entry-xr/index"
   ],
+  "xrEntryPagePath": "entry-xr/index",
   "usingComponents": {},
   "window": {
     "backgroundTextStyle": "light",

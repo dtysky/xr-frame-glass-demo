@@ -1,0 +1,15 @@
+<xr-element>
+  <xr-assets>
+    <xr-asset-load type="gltf" asset-id="model" src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/shibahu/scene.gltf" />
+  </xr-assets>
+
+  <xr-node>
+    <xr-gltf node-id="model" anim-autoplay="loop:true" position="0 0 -2" scale="1.7 1.7 1.7" model="model"></xr-gltf>
+    <xr-mesh position="-2 1 -2" geometry="cube" uniforms="u_baseColorFactor:0.937 0.176 0.368 0.5" ></xr-mesh>
+  </xr-node>
+
+  <xr-node node-id="lights">
+    <xr-light type="ambient" color="1 1 1" intensity="1" />
+    <xr-light type="directional" rotation="40 180 0" color="1 1 1" intensity="2" />
+  </xr-node>
+</xr-element>

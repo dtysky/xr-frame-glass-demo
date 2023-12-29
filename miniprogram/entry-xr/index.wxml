@@ -1,3 +1,3 @@
-<xr-scene xr-system>
+<xr-scene xr-system="passThrough:false">
   <container />
 </xr-scene>

@@ -1,0 +1,15 @@
+<xr-element>
+  <xr-assets>
+    <xr-asset-material asset-id="mat" effect="extra-props-demo" />
+  </xr-assets>
+  <xr-mesh
+    node-id="mesh-plane" rotation="90 0 0" scale="1 1 1"
+    position="0 0 -5" geometry="plane" material="mat"
+    extra-props-demo
+  />
+
+  <xr-node node-id="lights">
+    <xr-light type="ambient" color="1 1 1" intensity="1" />
+    <xr-light type="directional" rotation="60 0 0" color="1 1 1" intensity="3" />
+  </xr-node>
+</xr-element>
