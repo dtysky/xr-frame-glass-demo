@@ -4,13 +4,14 @@
  * @Author  : hikaridai(hikaridai@tencent.com)
  * @Date    : 2023/12/26 14:56:57
  */
+import XrFrame from 'XrFrame';
 const xrFrameSystem = wx.getXrFrameSystem();
 
-interface IExtraPropsDemoComponentData {
+interface IInstanceDemoComponentData {
 }
 
-class ExtraPropsDemoComponent extends xrFrameSystem.Component<IExtraPropsDemoComponentData> {
-  public schema: xrFrameSystem.IComponentSchema = {
+class InstanceDemoComponent extends xrFrameSystem.Component<IInstanceDemoComponentData> {
+  public schema: XrFrame.IComponentSchema = {
   };
 
   public onAdd() {
@@ -19,7 +20,7 @@ class ExtraPropsDemoComponent extends xrFrameSystem.Component<IExtraPropsDemoCom
     this._initTransforms(material);
   }
 
-  private _initColors(material: xrFrameSystem.Material) {
+  private _initColors(material: XrFrame.Material) {
     const {buffer, byteOffsets} = material.getOrCreateExtraBuffer('ubVertexColors', 4 * 4 * 4);
     const array = new Float32Array(new ArrayBuffer(buffer.byteSize));
     array[byteOffsets['colorScale'] / 4] = 2;
@@ -32,7 +33,7 @@ class ExtraPropsDemoComponent extends xrFrameSystem.Component<IExtraPropsDemoCom
     buffer.update(array.buffer);
   }
 
-  private _initTransforms(material: xrFrameSystem.Material) {
+  private _initTransforms(material: XrFrame.Material) {
     const {buffer, byteOffsets} = material.getOrCreateExtraBuffer('ubTransforms', 16 * 2 * 4);
     const array = new Float32Array(new ArrayBuffer(buffer.byteSize));
     const position = new xrFrameSystem.Vector3();
@@ -50,4 +51,4 @@ class ExtraPropsDemoComponent extends xrFrameSystem.Component<IExtraPropsDemoCom
   }
 }
 
-xrFrameSystem.registerComponent('extra-props-demo', ExtraPropsDemoComponent);
+xrFrameSystem.registerComponent('instance-demo', InstanceDemoComponent);

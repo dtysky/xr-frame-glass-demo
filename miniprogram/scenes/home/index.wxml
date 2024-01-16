@@ -1,3 +1,13 @@
 <xr-element>
+  <xr-camera id="camera" clear-color="0.3 0.8 0.6 0" enable-xr>
+  </xr-camera>
 
+  <xr-node>
+    <xr-mesh position="-2 1 -2" geometry="cube" uniforms="u_baseColorFactor:0.937 0.176 0.368 0.5" ></xr-mesh>
+  </xr-node>
+
+  <xr-node node-id="lights">
+    <xr-light type="ambient" color="1 1 1" intensity="1" />
+    <xr-light type="directional" rotation="40 180 0" color="1 1 1" intensity="2" />
+  </xr-node>
 </xr-element>

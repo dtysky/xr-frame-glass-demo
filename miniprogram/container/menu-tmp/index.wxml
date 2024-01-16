@@ -1,11 +1,12 @@
-<xr-element menu-tmp>
+<xr-element menu-tmp bind:change-scene="handleChangeScene">
   <xr-asset-material asset-id="ui-default" effect="simple" states="alphaMode:BLEND,cullOn:false" />
 
   <xr-node id="ui-wrapper">
     <xr-node position="{{wrapper.x}} {{wrapper.y}} 2" rotation="90 0 0">
       <xr-mesh
         wx:for="{{scenes}}" wx:for-item="scene"
-        id="scene-{{scene.name}}"
+        name="menu-item"
+        id="scene-{{scene.comp}}"
         scale="{{perWidth}} 1 {{perHeight}}"
         position="{{scene.x}} 0 {{scene.y}}"
         geometry="plane" material="ui-default"

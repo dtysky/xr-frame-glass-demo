@@ -6,6 +6,21 @@
  */
 Component({
   properties: {},
-  data: {},
-  methods: {}
+  data: {
+    scene: 'last-record',
+    showMenu: true
+  },
+  methods: {
+    handleChangeScene({detail}) {
+      if (detail === this.data.scene) {
+        return;
+      }
+
+      console.log('change-scene', detail);
+      this.setData({
+        scene: detail,
+        showMenu: false
+      })
+    }
+  }
 })

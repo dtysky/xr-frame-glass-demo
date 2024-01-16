@@ -29,7 +29,12 @@ Component({
         comp: 'instance',
         color: '0 0 1 0.5',
         x: 0, y: 0
-      }
+      },
+      {
+        comp: 'last-record',
+        color: '0 1 1 0.5',
+        x: 0, y: 0
+      },
     ]
   },
   lifetimes: {
@@ -38,14 +43,19 @@ Component({
       const totalHeight = count * this.data.perHeight;
       const scenes = this.data.scenes.map((scene, index) => {
         scene.x = 0;
-        scene.y = index * this.data.perHeight;
+        scene.y = -index * this.data.perHeight;
         return scene;
       });
 
       this.setData({
-        wrapper: {x: 0, y: totalHeight / 2},
+        wrapper: {x: 0, y: -totalHeight / 2},
         scenes
       });
     }
   },
+  methods: {
+    handleChangeScene({detail}) {
+      this.triggerEvent('change-scene', detail.value);
+    }
+  }
 })

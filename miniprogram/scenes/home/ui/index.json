@@ -1,5 +1,4 @@
 {
   "usingComponents": {},
-  "renderer": "xr-frame",
   "disableScroll": true
 }
