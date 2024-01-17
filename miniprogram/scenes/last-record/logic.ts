@@ -7,6 +7,8 @@
 import XrFrame from "XrFrame";
 const xrSystem = wx.getXrFrameSystem();
 
+const REVERSE_V3 = xrSystem.Vector3.createFromArray([Math.PI, Math.PI, Math.PI]);
+
 interface ILastRecordDemoComponentData {
 }
 
@@ -16,15 +18,15 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
 
   private _inRealWorld: boolean = true;
   private _placed: boolean = false;
-  private _texts: any = {};
+  private _texts: {[id: string]: {obj: XrFrame.Element, timerId: number}} = {};
   private _textsIndex: any = {};
   private _bgm!: WechatMiniprogram.InnerAudioContext;
-  private _records: any;
+  private _records!: {[name: string]: {y: number, frames: string[]}};
+  private _atlas!: XrFrame.Atlas;
   private _note: any;
   private _blurTotal!: number;
   private _blurDuration!: number;
   private _startDis!: number;
-  private _diff!: XrFrame.Vector2;
   private _doorEventBinded: boolean = false;
 
   public onAdd() {
@@ -34,6 +36,7 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
 
     this.scene.getElementById('last-record-assets').event.addOnce('loaded', () => {
       this._records = JSON.parse(this.scene.assets.getAsset('raw', 'records'));
+      this._atlas = this.scene.assets.getAsset<XrFrame.Atlas>('atlas', 'records-atlas');
       this._note = this.scene.assets.getAsset('raw', 'note');
     });
 
@@ -62,19 +65,11 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
       this.scene.getElementById('door-mesh').event.addOnce('overlap-begin', this._handleEnterGate);
     }
 
-    const forward = xrSystem.Vector2.createFromArray([door.worldForward.x, door.worldForward.z]);
     const diff = mainTrs.worldPosition.sub(door.worldPosition);
-    const diff2 = xrSystem.Vector2.createFromArray([diff.x, diff.z]);
-    const preDiff = this._diff || diff2;
-    this._diff = diff2;
-
     const dis = diff.length();
-    const preDis = preDiff.length();
-    const dir = forward.dot(diff2);
     this._startDis = this._startDis || dis;
 
-    const vignetteAsset = this.scene.assets.getAsset<XrFrame.PostProcess>('post-process', 'vignette');
-    const bloomAsset = this.scene.assets.getAsset<XrFrame.PostProcess>('post-process', 'bloom');
+    const bgMat = this.scene.getElementById('bg').getComponent(xrSystem.Mesh).material;
     const edgeEnv1 = 0.5;
     const edgeEnv2 = 0.8;
     const edgeDoor1 = 0.3;
@@ -84,34 +79,22 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
       this._blurDuration = Math.max(0, this._blurDuration - dt);
       const p = 1 - this._blurDuration / this._blurTotal;
 
-      // if (p <= edgeEnv1) {
-      //   const progress = xrSystem.noneParamsEaseFuncs['ease-in-out'](p / edgeEnv1);
-      //   vignetteAsset.data.intensity = progress * 2;
-      //   // blurAsset.data.radius = progress * 86 + 10;
-      // } else if (p > edgeEnv2) {
-      //   const progress = xrSystem.noneParamsEaseFuncs['ease-in-out']((1 - p) / (1 - edgeEnv2));
-      //   vignetteAsset.data.intensity = progress * 2;
-      //   // blurAsset.data.radius = progress * 96;
-      // }
+      if (p <= edgeEnv1) {
+        const progress = xrSystem.noneParamsEaseFuncs['ease-in-out'](p / edgeEnv1);
+        bgMat.setFloat('alpha', progress * 1.2);
+      } else if (p > edgeEnv2) {
+        const progress = xrSystem.noneParamsEaseFuncs['ease-in-out']((1 - p) / (1 - edgeEnv2));
+        bgMat.setFloat('alpha', progress + 0.2);
+      }
       
       if (p >= edgeDoor1 && p < edgeDoor2) {
         const progress = xrSystem.noneParamsEaseFuncs['ease-in-out']((p - edgeDoor1) / (edgeDoor2 - edgeDoor1));
         door.scale.setValue(progress, 1, 1);
       }
     } else if (this._blurTotal) {
-      // let progress = (1 - Math.max(0, Math.min(dis / this._startDis, 0.8)));
-      // if (progress >= 0.2) {
-      //   progress = (progress - 0.2) / 0.6;
-      //   // blurAsset.data.radius = progress * 96;
-      //   vignetteAsset.data.intensity = progress * 2;
-      //   bloomAsset.data.threshold = 0.5 + progress * 2;
-      // }
+      let progress = Math.min(Math.max(1 - dis / this._startDis, 0) + 0.2, 0.7);
+      bgMat.setFloat('alpha', progress);
     }
-
-    //@todo: 等待物理加上碰撞检测，替换
-    // if (dir >= 0 || preDis <= 0.2 || dis > 0.2) {
-    //   return;
-    // }
   }
 
   public onRemove(parent: XrFrame.Element, data: ILastRecordDemoComponentData): void {
@@ -129,10 +112,9 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
         .getComponent(xrSystem.GLTF).meshes.forEach(mesh => mesh.material.setRenderState('stencilComp', 0));
     });
 
-    this.scene.getElementById('main-camera').getComponent(xrSystem.Camera).setData({
-      renderTarget: undefined,
-      postProcess: ['tone']
-    });
+    // this.scene.getElementById('main-camera').getComponent(xrSystem.Camera).setData({
+    //   postProcess: ['tone']
+    // });
 
     this.el.event.trigger('set-data', {
       gateClosed: true
@@ -173,7 +155,7 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
     }
 
     if (this._records[el.id] && actions['confirm-start']) {
-      this._handleTouchObj(el.id, distance);
+      this._handleTouchObj(el, distance);
     }
   }
 
@@ -190,20 +172,25 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
   }
 
   private _handleShowDoor = (position: XrFrame.Vector3, rotation: XrFrame.Vector3) => {
+    this.scene.getNodeById('anchor').visible = false;
+
     const setitem = this.scene.getNodeById('setitem');
     setitem.position.set(position);
     setitem.position.y = 0;
     setitem.rotation.y = rotation.y + Math.PI;
-    setitem.visible = true;
 
-    setTimeout(() => {
-      this._blurTotal = this._blurDuration = 1700;
-    }, 300);
+    this.scene.event.addOnce('tick', () => {
+      this.scene.getNodeById('setitem').visible = true;
+      this._bgm?.play();
+      this.el.event.trigger('set-data', {
+        placed: true
+      }, false, true);
 
-    this._bgm?.play();
-    this.el.event.trigger('set-data', {
-      placed: true
-    }, false, true);
+      setTimeout(() => {
+        this._blurTotal = this._blurDuration = 1700;
+      }, 1000);
+    }, 100);
+
     this._placed = true;
   }
 
@@ -211,51 +198,70 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
     // this.triggerEvent('showNote', this.note);
   }
 
-  private _handleTouchObj = (id: string, distance: number) => {
-    console.log(id, distance)
-    // let text = this._texts[id];
-    // const {y, d, texts: records} = this._records[id];
+  private _handleTouchObj = (target: XrFrame.Element, distance: number) => {
+    const id: number = (target as any).id;
+    let text = this._texts[id];;
+    const {y, frames} = this._records[id];
 
-    // if (distance > (d || 1.5)) {
-    //   return;
-    // }
+    if (distance > 1.5) {
+      return;
+    }
 
-    // if (text) {
-    //   clearTimeout(text.timerId);
-    // }
+    if (text) {
+      this.scene.rootShadow.removeChild(text.obj);
+      clearTimeout(text.timerId);
+    }
 
-    // let index = this._textsIndex[id] === undefined ? -1 : this._textsIndex[id];
-    // if (index >= records.length - 1) {
-    //   index = 0;
-    // } else {
-    //   index += 1;
-    // }
-    // this._textsIndex[id] = index;
+    let index = this._textsIndex[id] === undefined ? -1 : this._textsIndex[id];
+    if (index >= frames.length - 1) {
+      index = 0;
+    } else {
+      index += 1;
+    }
+    this._textsIndex[id] = index;
 
-    // this._texts[id] = {
-    //   content: records[index], y,
-    //   timerId: setTimeout(() => {
-    //     delete this._texts[id];
-    //   }, 4000)
-    // };
+    const trs = target.getComponent(xrSystem.Transform);
+    const obj = this.scene.createElement(xrSystem.XRNode);
+    this.scene.rootShadow.addChild(obj);
+    const meshNode = this.scene.createElement(xrSystem.XRNode, {
+      rotation: '-90 0 0'
+    });
+    obj.addChild(meshNode);
+    const material = this.scene.createMaterial(this.scene.assets.getAsset<XrFrame.Effect>('effect', 'last-record-ui'));
+    meshNode.addComponent(xrSystem.Mesh, {material, geometry: this.scene.assets.getAsset<XrFrame.Geometry>('geometry', 'plane')});
+    const meshTrs = meshNode.getComponent(xrSystem.Transform);
+
+    const {w, h} = this._atlas.getFrame(frames[index]);
+    meshTrs.scale.x = 0.8 / 448 * w;
+    meshTrs.scale.z = meshTrs.scale.x / w * h;
+    material.setTexture('texture', this._atlas.texture);
+    material.setVector('uvST', this._atlas.getUVST(frames[index]));
+  
+    const objTrs = obj.getComponent(xrSystem.Transform);
+    objTrs.position.set(trs.worldPosition);
+    objTrs.position.y += y;
+    objTrs.visible = false;
+
+    this._texts[id] = {
+      obj,
+      timerId: setTimeout(() => {
+        this.scene.rootShadow.removeChild(obj);
+        delete this._texts[id];
+      }, 4000)
+    };
   }
 
   private _syncTexts = () => {
-    const texts = Object.keys(this._texts).map(id => {
-      const {camera, target, content, y} = this._texts[id];
-      const xrSystem = wx.getxrSystem();
-      const trs = target.getComponent(xrSystem.Transform);
-      const tmp = trs.worldPosition.clone();
-      tmp.y += y;
-      const clipPos = camera.convertWorldPositionToClip(tmp);
-      const {frameWidth, frameHeight} = this.scene;
+    const mainCamEl = this.scene.getElementById('main-camera');
+    const mainTrs = mainCamEl.getComponent(xrSystem.Transform);
 
-      return {
-        content, id,
-        x: ((clipPos.x + 1) / 2) * frameWidth,
-        y: (1 - (clipPos.y + 1) / 2) * frameHeight
-      };
-    });
+    for (const id in this._texts) {
+      const {obj} = this._texts[id];
+      const trs = obj.getComponent(xrSystem.Transform);
+      trs.rotation.set(mainTrs.rotation);
+      trs.rotation.add(REVERSE_V3);
+      trs.visible = true;
+    }
   }
 }
 

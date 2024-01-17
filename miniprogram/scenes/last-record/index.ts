@@ -1,3 +1,5 @@
+import './effectBG';
+import './effectUI';
 import './logic';
 
 const info = wx.getSystemInfoSync();

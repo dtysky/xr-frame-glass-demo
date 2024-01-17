@@ -2,8 +2,10 @@
   <xr-assets id="last-record-assets" bind:progress="handleAssetsProgress"
     bind:loaded="handleAssetsLoaded">
     <xr-asset-load type="raw" asset-id="records"
-      src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/xr-frame-team/last-record.json"
+      src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/xr-frame-team/last-record-atlas/records.json"
       options="encoding:utf-8" />
+    <xr-asset-load type="atlas" asset-id="records-atlas"
+      src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/xr-frame-team/last-record-atlas/atlas.json" />
     <xr-asset-load type="raw" asset-id="note"
       src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/xr-frame-team/last-note.txt"
       options="encoding:utf-8" />
@@ -177,7 +179,9 @@
       </xr-node>
 
       <xr-node id="door" wx:if="{{loaded && placed}}" position="0 1.1 0" scale="0 0 0">
-        <xr-node id="door-mesh" cube-shape="size: 1.1 2.2 0.2" shape-interact="collide:false" shape-gizmo>
+        <xr-asset-material asset-id="bg" effect="last-record-bg" />
+        <xr-mesh id="bg" geometry="ar-camera-plane" material="bg" states="renderQueue: 1" />
+        <xr-node id="door-mesh" cube-shape="size: 1.1 2.2 0.2; center: 0 0 0.2" shape-interact="collide:false">
           <xr-mesh
             rotation="90 0 0" scale="1.1 1 2.2"
             geometry="plane"
@@ -225,11 +229,11 @@
       </xr-node>
     </xr-node>
 
-    <xr-element wx:if="{{!gateClosed}}">
-      <!-- <xr-asset-render-texture asset-id="bg-camera" width="{{width}}" height="{{height}}" />
-      <xr-asset-render-texture asset-id="main-camera" width="{{width}}" height="{{height}}" /> -->
+    <!-- <xr-element wx:if="{{!gateClosed}}">
+      <xr-asset-render-texture asset-id="bg-camera" width="{{width}}" height="{{height}}" />
+      <xr-asset-render-texture asset-id="main-camera" width="{{width}}" height="{{height}}" />
 
-      <!-- <xr-asset-post-process
+      <xr-asset-post-process
         asset-id="vignette" type="vignette"
         data="intensity:0,smoothness:2,color:0.1 0.1 0.1 1"
       />
@@ -245,18 +249,17 @@
       <xr-camera
         id="final-camera" cull-mask="0b101" depth="2"
         target="final" is-clear-color="false"
-      /> -->
-    </xr-element>
+      />
+    </xr-element> -->
 
     <xr-asset-post-process asset-id="bloom" type="bloom" is-hdr
     data="radius:32,intensity:2,threshold:0.7" />
-    <xr-asset-post-process asset-id="tone" type="tone" />
+    <xr-asset-post-process asset-id="tone" type="tone" is-hdr />
     <xr-env env-data="xr-frame-team-workspace-day2" />
     <xr-camera
       id="main-camera" near="0.1" far="2000" cull-mask="0b11" depth="1"
       cube-shape="size: 0.1 0.4 0.1; center: 0 0.4 0" shape-interact="collide:true" rigidbody="kinematic:true"
-      enable-xr clear-color="0 0 0 0" post-process="{{loaded ? 'bloom tone' : ''}}"
-      render-target="main-camera"
+      enable-xr clear-color="0 0 0 0" post-process="{{loaded ? 'tone' : ''}}"
     >
       <xr-gltf wx:if="{{!loaded}}" position="0 0 10" model="loading" anim-autoplay /> 
     </xr-camera>
