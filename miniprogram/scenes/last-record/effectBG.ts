@@ -17,12 +17,12 @@ xrFrameSystem.registerEffect('last-record-bg', scene => scene.createEffect({
     {
       key: 'color',
       type: xrFrameSystem.EUniformType.FLOAT3,
-      default: [1, 1, 1]
+      default: [0.4, 0.4, 0.4]
     }
   ],
   images: [
     {
-      key: 'u_texture',
+      key: 'texture',
       default: 'white'
     }
   ],
@@ -60,7 +60,8 @@ struct VertexOutput {
 
 @fragment
 fn main(vo: VertexOutput) -> @location(0) vec4<f32> {
-  return vec4f(ubMaterial.color, ubMaterial.alpha);
+  let mask = textureSample(texture, texture_Sampler, vo.uv);
+  return vec4f(ubMaterial.color * (vec3f(1) - mask.rrr), ubMaterial.alpha);
 }    
     `],
 }));

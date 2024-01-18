@@ -7,7 +7,7 @@
 import XrFrame from "XrFrame";
 const xrSystem = wx.getXrFrameSystem();
 
-const REVERSE_V3 = xrSystem.Vector3.createFromArray([Math.PI, Math.PI, Math.PI]);
+const UP = xrSystem.Vector3.createFromArray([0, 1, 0]);
 
 interface ILastRecordDemoComponentData {
 }
@@ -21,7 +21,7 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
   private _texts: {[id: string]: {obj: XrFrame.Element, timerId: number}} = {};
   private _textsIndex: any = {};
   private _bgm!: WechatMiniprogram.InnerAudioContext;
-  private _records!: {[name: string]: {y: number, frames: string[]}};
+  private _records!: {[name: string]: {y: number, d?: number, frames: string[]}};
   private _atlas!: XrFrame.Atlas;
   private _note: any;
   private _blurTotal!: number;
@@ -70,8 +70,8 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
     this._startDis = this._startDis || dis;
 
     const bgMat = this.scene.getElementById('bg').getComponent(xrSystem.Mesh).material;
-    const edgeEnv1 = 0.5;
-    const edgeEnv2 = 0.8;
+    const edgeEnv1 = 0.4;
+    const edgeEnv2 = 0.7;
     const edgeDoor1 = 0.3;
     const edgeDoor2 = 0.7;
 
@@ -81,10 +81,10 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
 
       if (p <= edgeEnv1) {
         const progress = xrSystem.noneParamsEaseFuncs['ease-in-out'](p / edgeEnv1);
-        bgMat.setFloat('alpha', progress * 1.2);
+        bgMat.setFloat('alpha', progress * 0.8);
       } else if (p > edgeEnv2) {
         const progress = xrSystem.noneParamsEaseFuncs['ease-in-out']((1 - p) / (1 - edgeEnv2));
-        bgMat.setFloat('alpha', progress + 0.2);
+        bgMat.setFloat('alpha', Math.max(progress * 0.8, 0.2));
       }
       
       if (p >= edgeDoor1 && p < edgeDoor2) {
@@ -92,7 +92,7 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
         door.scale.setValue(progress, 1, 1);
       }
     } else if (this._blurTotal) {
-      let progress = Math.min(Math.max(1 - dis / this._startDis, 0) + 0.2, 0.7);
+      let progress = Math.min(Math.max(1 - dis / this._startDis, 0) + 0.2, 0.9);
       bgMat.setFloat('alpha', progress);
     }
   }
@@ -109,7 +109,7 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
     ['sky', 'scene-mesh', 'hikari', 'roam', 'xinyi'].forEach(id => {
       this.scene
         .getElementById(id)
-        .getComponent(xrSystem.GLTF).meshes.forEach(mesh => mesh.material.setRenderState('stencilComp', 0));
+        .getComponent(xrSystem.GLTF).meshes.forEach(mesh => mesh.material.setRenderState('stencilTestOn', false));
     });
 
     // this.scene.getElementById('main-camera').getComponent(xrSystem.Camera).setData({
@@ -201,9 +201,9 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
   private _handleTouchObj = (target: XrFrame.Element, distance: number) => {
     const id: number = (target as any).id;
     let text = this._texts[id];;
-    const {y, frames} = this._records[id];
+    const {y, d, frames} = this._records[id];
 
-    if (distance > 1.5) {
+    if (distance > (d || 1.5)) {
       return;
     }
 
@@ -224,7 +224,7 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
     const obj = this.scene.createElement(xrSystem.XRNode);
     this.scene.rootShadow.addChild(obj);
     const meshNode = this.scene.createElement(xrSystem.XRNode, {
-      rotation: '-90 0 0'
+      rotation: '90 180 0'
     });
     obj.addChild(meshNode);
     const material = this.scene.createMaterial(this.scene.assets.getAsset<XrFrame.Effect>('effect', 'last-record-ui'));
@@ -239,7 +239,7 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
   
     const objTrs = obj.getComponent(xrSystem.Transform);
     objTrs.position.set(trs.worldPosition);
-    objTrs.position.y += y;
+    objTrs.position.y += y + 0.1;
     objTrs.visible = false;
 
     this._texts[id] = {
@@ -258,8 +258,9 @@ class LastRecordDemoComponent extends xrSystem.Component<ILastRecordDemoComponen
     for (const id in this._texts) {
       const {obj} = this._texts[id];
       const trs = obj.getComponent(xrSystem.Transform);
-      trs.rotation.set(mainTrs.rotation);
-      trs.rotation.add(REVERSE_V3);
+      trs.quaternion.lookAt(trs.position, mainTrs.position, UP);
+      // mainTrs.quaternion.invert(trs.quaternion);
+      // trs.rotation.y = mainTrs.rotation.y + Math.PI;
       trs.visible = true;
     }
   }

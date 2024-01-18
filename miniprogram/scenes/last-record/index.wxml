@@ -29,12 +29,14 @@
       src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/xr-frame-team/xinyi-unlit.glb" />
     <xr-asset-load type="texture" asset-id="particle-point"
       src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/particles/point.png" />
+    <xr-asset-load type="texture" asset-id="blur-mask"
+      src="https://mmbizwxaminiprogram-1258344707.cos.ap-guangzhou.myqcloud.com/xr-frame/demo/xr-frame-team/blur-mask-3.jpg" />
   </xr-assets>
 
   <xr-node id="ground" wx:if="{{loaded && !placed}}" position="0 -1 0" cube-shape="size:100 1 100"></xr-node>
-  <xr-controller>
-    <xr-mesh geometry="cube" scale="0.02 0.02 0.04Z" uniforms="u_baseColorFactor:1 1 0 1"></xr-mesh>
-  </xr-controller>
+  <!-- <xr-controller>
+    <xr-mesh geometry="cube" scale="0.02 0.02 0.04" uniforms="u_baseColorFactor:1 1 0 1"></xr-mesh>
+  </xr-controller> -->
   <xr-element last-record-demo bind:set-data="handleSetData" />
 
   <xr-node layer="1">
@@ -179,14 +181,16 @@
       </xr-node>
 
       <xr-node id="door" wx:if="{{loaded && placed}}" position="0 1.1 0" scale="0 0 0">
-        <xr-asset-material asset-id="bg" effect="last-record-bg" />
-        <xr-mesh id="bg" geometry="ar-camera-plane" material="bg" states="renderQueue: 1" />
-        <xr-node id="door-mesh" cube-shape="size: 1.1 2.2 0.2; center: 0 0 0.2" shape-interact="collide:false">
+        <xr-node wx:if="{{!gateClosed}}">
+          <xr-asset-material asset-id="bg" effect="last-record-bg" uniforms="texture:blur-mask" states="renderQueue: 1"/>
+          <xr-mesh id="bg" geometry="ar-camera-plane" material="bg" />
           <xr-mesh
             rotation="90 0 0" scale="1.1 1 2.2"
             geometry="plane"
-            states="cullOn: false, renderQueue: 2, stencilComp: 7, stencilRef: 1, stencilReadMask: 1, stencilWriteMask: 1, stencilPass: 1, stencilFail: 2, stencilZFail: 2"
+            states="cullOn: false, renderQueue: 3, stencilComp: 7, stencilRef: 1, stencilReadMask: 1, stencilWriteMask: 1, stencilPass: 1, stencilFail: 2, stencilZFail: 2"
           />
+        </xr-node>
+        <xr-node id="door-mesh" cube-shape="size: 1.1 2.2 0.2; center: 0 0 0.2" shape-interact="collide:false">
         </xr-node>
       </xr-node>
 
@@ -259,7 +263,8 @@
     <xr-camera
       id="main-camera" near="0.1" far="2000" cull-mask="0b11" depth="1"
       cube-shape="size: 0.1 0.4 0.1; center: 0 0.4 0" shape-interact="collide:true" rigidbody="kinematic:true"
-      enable-xr clear-color="0 0 0 0" post-process="{{loaded ? 'tone' : ''}}"
+
+      enable-xr clear-color="0 0 0 0"
     >
       <xr-gltf wx:if="{{!loaded}}" position="0 0 10" model="loading" anim-autoplay /> 
     </xr-camera>

@@ -1,10 +1,13 @@
 <xr-element>
-  <xr-camera id="camera" clear-color="0.3 0.8 0.6 0" enable-xr>
+  <xr-camera id="camera" clear-color="0 0 0 1" enable-xr>
   </xr-camera>
 
-  <xr-node>
-    <xr-mesh position="-2 1 -2" geometry="cube" uniforms="u_baseColorFactor:0.937 0.176 0.368 0.5" ></xr-mesh>
-  </xr-node>
+  <xr-asset-material asset-id="simple" effect="super-simple" />
+  <xr-mesh position="-2 1 -2" geometry="cube" material="simple" uniforms="baseColorFactor:0.937 0.176 0.368 0.5" ></xr-mesh>
+
+  <xr-controller>
+    <xr-mesh geometry="cube" scale="0.05 0.05 5" uniforms="u_baseColorFactor:1 1 0 1"></xr-mesh>
+  </xr-controller>
 
   <xr-node node-id="lights">
     <xr-light type="ambient" color="1 1 1" intensity="1" />
