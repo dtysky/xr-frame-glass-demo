@@ -7,7 +7,8 @@
 Component({
   properties: {},
   data: {
-    scene: 'last-record',
+    // scene: 'last-record',
+    scene: 'home',
     showMenu: true
   },
   methods: {
